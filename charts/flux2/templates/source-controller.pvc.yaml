@@ -1,0 +1,27 @@
+{{- if .Values.sourceController.persistence.enabled}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/component: source-controller
+    app.kubernetes.io/instance: {{ .Release.Namespace | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote  }}
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    {{- with .Values.sourceController.labels }}
+    {{- . | toYaml | nindent 4 }}
+    {{- end }}
+  name: gotk-pvc
+spec:
+  accessModes:
+    {{- range .Values.sourceController.persistence.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.sourceController.persistence.size | quote }}
+  {{- with .Values.sourceController.persistence.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+{{- end }}

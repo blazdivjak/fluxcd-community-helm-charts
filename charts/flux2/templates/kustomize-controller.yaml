@@ -136,7 +136,11 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: 60
       volumes:
-      - emptyDir: {}
+      - emptyDir: {
+        {{- if .Values.kustomizeController.inMemoryKustomizeBuilds -}}
+        medium: Memory
+        {{- end -}}
+        }
         name: temp
       {{- if .Values.kustomizeController.volumes }}
       {{- toYaml .Values.kustomizeController.volumes | nindent 6 }}

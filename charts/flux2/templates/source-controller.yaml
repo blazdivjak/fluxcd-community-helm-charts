@@ -97,15 +97,20 @@ spec:
           runAsNonRoot: true
           seccompProfile:
             type: RuntimeDefault
-        {{- end}}
+        {{- end }}
         volumeMounts:
+        {{- if .Values.sourceController.persistence.enabled }}
+        - mountPath: /data
+          name: persistent-data
+        {{- else }}
         - mountPath: /data
           name: data
+        {{- end}}
         - mountPath: /tmp
           name: tmp
         {{- if .Values.sourceController.volumeMounts }}
         {{- toYaml .Values.sourceController.volumeMounts | nindent 8 }}
-        {{- end}}
+        {{- end }}
       {{- if .Values.sourceController.priorityClassName }}
       priorityClassName: {{ .Values.sourceController.priorityClassName | quote }}
       {{- end }}
@@ -121,8 +126,14 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: 10
       volumes:
+      {{- if .Values.sourceController.persistence.enabled }}
+      - name: persistent-data
+        persistentVolumeClaim:
+          claimName: gotk-pvc
+      {{- else }}
       - emptyDir: {}
         name: data
+      {{- end }}
       - emptyDir: {}
         name: tmp
       {{- if .Values.sourceController.volumes }}
